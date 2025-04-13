@@ -5,7 +5,13 @@ import { useState } from 'react';
 import WeatherWidget from './WeatherWidget';
 
 import { fetchGeoCoords } from '@/service/weather';
-import { closestCenter, DndContext, DragEndEvent } from '@dnd-kit/core';
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  MouseSensor,
+  useSensor,
+} from '@dnd-kit/core';
 import {
   arrayMove,
   rectSortingStrategy,
@@ -71,6 +77,13 @@ export default function WeatherDashboard() {
     }
   };
 
+  const mouseSensor = useSensor(MouseSensor, {
+    // Require the mouse to move by 10 pixels before activating
+    activationConstraint: {
+      distance: 10,
+    },
+  });
+
   return (
     <div className="p-6 max-w-screen-xl mx-auto">
       <div className="flex gap-4 mb-6">
@@ -95,7 +108,11 @@ export default function WeatherDashboard() {
           Add Widget
         </Button>
       </div>
-      <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+      <DndContext
+        collisionDetection={closestCenter}
+        onDragEnd={onDragEnd}
+        sensors={[mouseSensor]}
+      >
         <SortableContext
           items={widgets.map((city) => city.name)}
           strategy={rectSortingStrategy}
