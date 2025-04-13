@@ -11,5 +11,5 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ### TODO:
 
 - Autocomplete search
-- API caching, refetch weather when dnd issue
+- API caching, refetch weather data when changing layout
 - UI/UX: hourly forecast from now, add more weather information,...
