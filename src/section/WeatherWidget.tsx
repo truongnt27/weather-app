@@ -2,16 +2,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { dayNames } from '@/lib/constants';
-import {
-  fetchGeoCoords,
-  fetchWeatherData,
-  WeatherData,
-} from '@/service/weather';
+import { fetchWeatherData, WeatherData } from '@/service/weather';
 import { useSortable } from '@dnd-kit/sortable';
 import { Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-const WeatherWidget = ({ city, onDelete }) => {
+const WeatherWidget = ({ city, lat, lon, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform } = useSortable({
     id: city,
   });
@@ -25,9 +21,8 @@ const WeatherWidget = ({ city, onDelete }) => {
 
   useEffect(() => {
     const loadWeather = async () => {
-      const coords = await fetchGeoCoords(city);
-      if (coords) {
-        const data = await fetchWeatherData(coords.lat, coords.lon);
+      if (lat && lon) {
+        const data = await fetchWeatherData(lat, lon);
         setWeatherData(data);
       }
     };
@@ -47,7 +42,7 @@ const WeatherWidget = ({ city, onDelete }) => {
       <CardHeader>
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-lg font-semibold">{city}</h2>
+            <h2 className="text-lg capitalize font-semibold">{city}</h2>
             {weatherData ? weatherData.current.temperature_2m : '--'}°C
           </div>
           <Button size="icon" variant="ghost" onClick={onDelete}>
