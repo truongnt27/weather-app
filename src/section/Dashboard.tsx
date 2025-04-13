@@ -4,12 +4,20 @@ import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import WeatherWidget from './WeatherWidget';
 
+import { closestCenter, DndContext, DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  rectSortingStrategy,
+  SortableContext,
+} from '@dnd-kit/sortable';
+
 export default function WeatherDashboard() {
   const [cityInput, setCityInput] = useState('');
   const [widgets, setWidgets] = useState<string[]>([
     'Singapore',
     'New York',
     'London',
+    'Tokyo',
   ]);
 
   const addWidget = () => {
@@ -24,11 +32,12 @@ export default function WeatherDashboard() {
     setWidgets(updated);
   };
 
-  const moveWidget = (fromIndex: number, toIndex: number) => {
-    const updated = [...widgets];
-    const [moved] = updated.splice(fromIndex, 1);
-    updated.splice(toIndex, 0, moved);
-    setWidgets(updated);
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
+    if (over && active.id !== over.id) {
+      const oldIndex = widgets.indexOf(active.id as string);
+      const newIndex = widgets.indexOf(over.id as string);
+      setWidgets(arrayMove(widgets, oldIndex, newIndex));
+    }
   };
 
   return (
@@ -42,17 +51,19 @@ export default function WeatherDashboard() {
         />
         <Button onClick={addWidget}>Add Widget</Button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {widgets.map((city, index) => (
-          <WeatherWidget
-            key={index}
-            index={index}
-            city={city}
-            onDelete={() => removeWidget(index)}
-            moveWidget={moveWidget}
-          />
-        ))}
-      </div>
+      <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={widgets} strategy={rectSortingStrategy}>
+          <div className="flex flex-wrap gap-6">
+            {widgets.map((city, index) => (
+              <WeatherWidget
+                key={city}
+                city={city}
+                onDelete={() => removeWidget(index)}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }
